@@ -32,7 +32,6 @@ class ProgrammerController extends BaseController
         $programmer = new Programmer();
 
         $form = $this->createForm(new ProgrammerType(),$programmer);
-//        $programmer->setTagLine($data['tagLine']);
 
         $form->submit($data);
         $programmer->setUser($this->findUserByUsername('weaverryan'));
@@ -41,7 +40,37 @@ class ProgrammerController extends BaseController
         $em->persist($programmer);
         $em->flush();
 
-        return new Response('it work , api,201',201);
+        $response =  new Response('it work , api,201',201);
+        $programmerUrl = $this->generateUrl('api_programmers_show',['nickname'=>$programmer->getNickname()]);
+        $response->headers->set('Location',$programmerUrl);
+        $response->headers->set('Content-type','application/json');
+
+        return $response;
+    }
+
+    /**
+     * @Route("/api/programmers/{nickname}",name="api_programmers_show")
+     * @Method("GET")
+     */
+    public function showAction($nickname)
+    {
+        $programmer = $this->getDoctrine()->getRepository('AppBundle:Programmer')->findOneByNickname($nickname);
+        if(!$programmer){
+            throw $this->createNotFoundException(sprintf('no programmer with nickname %s',$nickname));
+        }
+
+        $data = [
+            'nickname' => $programmer->getNickname(),
+            'avantarNumber' => $programmer->getAvatarNumber(),
+            'poswerLever' => $programmer->getPowerLevel(),
+            'tagLine' => $programmer->getTagLine()
+        ];
+
+        $response =  new Response(json_encode($data),200);
+        $response->headers->set('content-type','application/json');
+
+        return $response;
+
     }
 
 }

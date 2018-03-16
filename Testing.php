@@ -26,6 +26,12 @@ $response = $client->post('/api/programmers',[
     'body' => json_encode($data)
 ]);
 
+
+$programmerUrl = $response->getHeader('Location');
+
+$response = $client->get($programmerUrl);
+//$response = $client->get('/api/programmers/'.$nickname);
+
 echo $response;
 
 echo '\n';
